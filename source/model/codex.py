@@ -9,7 +9,7 @@ from keys import API_KEYS
 from dataset.utils import CODE_STOP_TOKEN, CODE_MAX_TOKEN, NO_CODE_STOP_TOKEN, NO_CODE_MAX_TOKEN
 import sys
 from io import StringIO
-import openai
+from openai import OpenAI
 import itertools
 from model.solver.MWP import math_solver
 from model.solver.CLUTRR import CLUTRR_solver
@@ -122,6 +122,7 @@ class Model():
 		# query the LM to get the completions
 		n_iters = self.n_votes // self.batch_size # number of iterations to query the LM
 		completions = []
+		# print("Trying prompt:", prompt_and_example)
 		for iter_id in range(n_iters):
 			new_completions = self._query(prompt=prompt_and_example,
 								   n=self.batch_size,
@@ -404,7 +405,7 @@ class Model():
 		else:
 			raise NotImplementedError(f"Postprocessing function for dataset {self.dataset_name} is not implemented.")
 
-	@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(20), after=log_retry)
+	@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(5), after=log_retry)
 	def _query(self, prompt, stop, LM, n=1, logprobs=None, temperature=0.0, max_tokens=1024):
 		'''Query an OpenAI model.
 		@:param prompt (str): the prompt to be fed to the model
@@ -418,9 +419,10 @@ class Model():
 		@:return (dict): the response from the model
 		'''
 		api_key = next(self.api_keys)
-		org_id = next(self.org_ids)
-		openai.organization = org_id
-		openai.api_key = api_key
+		# org_id = next(self.org_ids)
+		# openai.organization = org_id
+		# openai.api_key = api_key
+		# print("api = ", api_key )
 
 		if LM in ["code-davinci-001", "code-davinci-002", "text-davinci-001", "text-davinci-002", "text-davinci-003"]: # models that support "completion"
 			response = openai.Completion.create(
@@ -436,7 +438,8 @@ class Model():
 			choices = response["choices"]
 			completions = [choice["text"] for choice in choices]
 		elif LM in ["gpt-3.5-turbo", "gpt-4"]: # models that support "chat"
-			response = openai.ChatCompletion.create(
+			client = OpenAI()
+			response = client.chat.completions.create(
 				model=LM,
 				messages=[
 					{"role": "user", "content": prompt},
@@ -447,7 +450,8 @@ class Model():
 				presence_penalty=0,
 				stop=stop
 			)
-			choices = response["choices"]
+			print("response:", response.choices)
+			choices = response.choices
 			completion_objs = [choice.message for choice in choices]
 			completions = [completion.content for completion in completion_objs]
 		else:
