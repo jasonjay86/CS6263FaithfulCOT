@@ -81,7 +81,7 @@ if __name__ == "__main__":
 			question = example["question"]
 			question_id = int(example["id"])
 			try:
-				print("Trying example:", example)
+				# print("Trying example:", example)
 				output = model.predict(example, completion_only=completion_only)
 				answer = output["answer"]
 				completion = output["completion"]

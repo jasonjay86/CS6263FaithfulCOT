@@ -1,0 +1,6 @@
+{
+  "LM": "mistral",
+  "prompt_name": "standard",
+  "n_votes": 1,
+  "no_solver": true
+}
