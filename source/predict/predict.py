@@ -69,17 +69,20 @@ if __name__ == "__main__":
 		start_id = 0
 
 	print(f"Making predictions on dataset {dataset_name} using model {model_name},\nstarting from the {start_id}th example...")
-
+	print(output_fwn)
 	with open(output_fwn, 'a') as fw:
 		writer = jsonlines.Writer(fw, flush=True)
 		t0 = time.time()
 		for i, example in tqdm(enumerate(dataset), file=sys.stdout):
+
 			if debug and i >= 10:
 				break
 			if i < start_id:
 				continue
 			question = example["question"]
+			# print("question", i, ":", question)
 			question_id = int(example["id"])
+			# print("Trying example:", example)
 			try:
 				# print("Trying example:", example)
 				output = model.predict(example, completion_only=completion_only)

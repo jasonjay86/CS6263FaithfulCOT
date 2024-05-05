@@ -411,6 +411,29 @@ class Model():
 
 		else:
 			raise NotImplementedError(f"Postprocessing function for dataset {self.dataset_name} is not implemented.")
+		
+	def get_Mistral_answer(self, text):
+		"""
+		Extracts the first sentence after the marker [/INST] in the text.
+
+		Args:
+			text: The input text string.
+
+		Returns:
+			The first sentence after [/INST], or None if not found.
+		"""
+		inst_index = text.find("[/INST]")
+		if inst_index == -1:
+			return None
+
+		# Split the text after [/INST] using a sentence separator
+		sentences = text[inst_index+len("[/INST]"):].split(".")
+		print("func:", sentences)
+		if sentences:
+			return sentences[0]
+		else:
+			return None
+
 
 	@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(5), after=log_retry)
 	def _query(self, prompt, stop, LM, n=1, logprobs=None, temperature=0.0, max_tokens=1024):
@@ -430,7 +453,7 @@ class Model():
 		# openai.organization = org_id
 		# openai.api_key = api_key
 		# print("api = ", api_key )
-		# print("LM:", LM)
+		print("LM:", LM)
 
 		if LM in ["code-davinci-001", "code-davinci-002", "text-davinci-001", "text-davinci-002", "text-davinci-003"]: # models that support "completion"
 			response = openai.Completion.create(
@@ -446,7 +469,7 @@ class Model():
 			choices = response["choices"]
 			completions = [choice["text"] for choice in choices]
 		elif LM in ["gpt-3.5-turbo", "gpt-4"]: # models that support "chat"
-			print("chat")
+			# print("chat")
 			client = OpenAI()
 			response = client.chat.completions.create(
 				model=LM,
@@ -462,9 +485,11 @@ class Model():
 			print("response:", response.choices)
 			choices = response.choices
 			completion_objs = [choice.message for choice in choices]
+			print(completion_objs)
 			completions = [completion.content for completion in completion_objs]
+			print("completions=",completions)
 		elif LM in ["mistral"]: # models that support "chat"
-			
+			completions = []
 			device = "cuda" # the device to load the model onto
 			print(self.path)
 			model = AutoModelForCausalLM.from_pretrained(self.path)
@@ -491,8 +516,13 @@ class Model():
 			response = tokenizer.batch_decode(generated_ids)
 			print("response:", response)
 			choices = response
-			completion_objs = [choice.message for choice in choices]
-			completions = [completion.content for completion in completion_objs]
+			# completion_objs = [choice.message for choice in choices]
+   			
+			for choice in choices:
+				completions.append(self.get_Mistral_answer(choice))
+
+			# completions = [completion.content for completion in choices]
+			print("Completions = ", completions)
 		else:
 			raise NotImplementedError(f"Model {LM} is not supported.")
 		return completions
