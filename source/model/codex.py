@@ -430,6 +430,7 @@ class Model():
 		# openai.organization = org_id
 		# openai.api_key = api_key
 		# print("api = ", api_key )
+		# print("LM:", LM)
 
 		if LM in ["code-davinci-001", "code-davinci-002", "text-davinci-001", "text-davinci-002", "text-davinci-003"]: # models that support "completion"
 			response = openai.Completion.create(
@@ -463,12 +464,12 @@ class Model():
 			completion_objs = [choice.message for choice in choices]
 			completions = [completion.content for completion in completion_objs]
 		elif LM in ["mistral"]: # models that support "chat"
-			print("mistral")
+			
 			device = "cuda" # the device to load the model onto
-
+			print(self.path)
 			model = AutoModelForCausalLM.from_pretrained(self.path)
 			tokenizer = AutoTokenizer.from_pretrained(self.path)
-
+			print("mistral")
 			messages=[{"role": "user", "content": prompt}]
 			# response = client.chat.completions.create(
 			# 	model=LM,
@@ -482,7 +483,7 @@ class Model():
 			# 	stop=stop
 			# )
 			encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
-
+			
 			model_inputs = encodeds.to(device)
 			model.to(device)
 
