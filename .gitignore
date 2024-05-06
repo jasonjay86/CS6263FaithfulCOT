@@ -177,3 +177,8 @@ cython_debug/
 /source/model/solver/saycan/test_planner.py
 /source/evaluate/find_example.py
 source/key.py
+COTMistralStandard.e386553
+COTMistralStandard.e386556
+COTMistralStandard.o386553
+COTMistralStandard.o386556
+Faith.slurm
