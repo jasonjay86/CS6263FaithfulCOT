@@ -2,13 +2,13 @@
 
 ### By Jason Johnson
 
-## Section 1
+## What is Faithful Chain of Thought?
 
-## Section 2
+## OK, So How does it Work?
 
-## Section 3
+## Does this work with other models?
 
-## Section 4
+## Adjusting to other models
 
-## Section 5
+## Results with Mistral
 
