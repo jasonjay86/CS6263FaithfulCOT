@@ -13,15 +13,20 @@ def solve_mwp(completion):
 	'''
 
 	# get the relation from every step
-
+	print("In the mathsolver")
 	prefix_frn = "source/model/solver/MWP/prefix.txt"
 	with open(prefix_frn, "r") as fr:
 		prefix = fr.read()
 
 	completion = completion.rstrip("#")
+	# for mistral
+	completion = completion.replace("</s>", "")
 
+	
 	code = f"{prefix}\n{completion}"
 
+	print("code in solver:")
+	print(code)
 	try:
 		locs = {}
 		exec(code, locs, locs)

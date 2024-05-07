@@ -51,11 +51,12 @@ if __name__ == "__main__":
 	# sort the rows
 	model_names = [
 				   # "code001",
-	               "code002",
+	            #    "code002",
 	               # "text002",
 	               # "text003",
 	               # "gpt-3.5-turbo",
-	               # "gpt4"
+	               # "gpt4",
+					"mistral"
 	               
 	               ]
 	prompt_names = [

@@ -427,10 +427,10 @@ class Model():
 			return None
 
 		# Split the text after [/INST] using a sentence separator
-		sentences = text[inst_index+len("[/INST]"):].split(".")
+		sentences = text[inst_index+len("[/INST]"):]  #.split(".")
 		print("func:", sentences)
 		if sentences:
-			return sentences[0]
+			return sentences
 		else:
 			return None
 
@@ -491,10 +491,10 @@ class Model():
 		elif LM in ["mistral"]: # models that support "chat"
 			completions = []
 			device = "cuda" # the device to load the model onto
-			print(self.path)
+			# print(self.path)
 			model = AutoModelForCausalLM.from_pretrained(self.path)
 			tokenizer = AutoTokenizer.from_pretrained(self.path)
-			print("mistral")
+			# print("mistral")
 			messages=[{"role": "user", "content": prompt}]
 			# response = client.chat.completions.create(
 			# 	model=LM,
@@ -522,7 +522,7 @@ class Model():
 				completions.append(self.get_Mistral_answer(choice))
 
 			# completions = [completion.content for completion in choices]
-			print("Completions = ", completions)
+			# print("Completions = ", completions)
 		else:
 			raise NotImplementedError(f"Model {LM} is not supported.")
 		return completions
