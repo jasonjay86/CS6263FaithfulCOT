@@ -32,6 +32,20 @@ With this method, the model is forced to be faithful to the reasoning chain beca
 That said, the researchers produced excellent results across the board when applying this method.  They found that using this method with OpenAI's models made them more accurate than standard prompting or other forms of Chain of Thought prompting.
  ![Picture3](https://github.com/jasonjay86/CS6263FaithfulCOT/assets/65077765/7c3abe86-f6e9-4397-b732-d66dec0d6b22)
 
+## Does this work with other models?
+
+In reading the paper, I was a little surprised that the team only stuck with OpenAI’s LLMs.  Sure, OpenAI has arguably been the gold standard for LLMs for several years.  They certainly have the most famous LLMs in ChatGPT.  But they are not the only game in town!
+
+I wondered *how well this technique could be used with a smaller model?*  So when we talk about model size, we are generally speaking of how many trainable parameters it has.  Without getting too math-y, we can say that the parameters are a rough indicator of a model’s ability to recognize complex patterns in data.  It’s *almost* an indication of how smart a model is (not really, but it helps). GPT-4, OpenAI’s latest and greatest, was trained on 1.76 *trillion* parameters.  Its predecessor, GPT-3, has 175 billion parameters.  Both of which were used in experiments on Faithful COT.  How does this work if you don’t have all those parameters to back you up?
+
+To test this, I used an open-source LLM called [Mistral-7B](https://mistral.ai/technology/#models).  The 7B part means that it has just 7 billion parameters.  Still plenty to work with, right?  We will see.  Mistral is a series of models developed by a French based AI company, [Mistral AI](https://mistral.ai/company/).  They publish an instruction tuned version of the Mistral on [Hugging Face]( https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2), available for anyone to use for free.  In case you don't know, [Hugging Face](https://huggingface.co/) is an incredible website full of machine learning and natural language processing models, datasets, and more for open collaboration in this space.  "Instruction tuned" means that the model has already been trained to take instructions.  Pretrained models that are not instruction tuned tend to just want to predict the next words it thinks you will say.
+
+Armed with Mistral and the [code published by the Faithful COT team](GitHub - veronica320/Faithful-COT: Code and data accompanying our paper on arXiv "Faithful Chain-of-Thought Reasoning".), I set out to adapt Faithful COT to Mistral.
+
+## Adjusting to other models
+
+## Results with Mistral
+
 
 ## Does this work with other models?
 
