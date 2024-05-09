@@ -40,14 +40,7 @@ I wondered *how well this technique could be used with a smaller model?*  So whe
 
 To test this, I used an open-source LLM called [Mistral-7B](https://mistral.ai/technology/#models).  The 7B part means that it has just 7 billion parameters.  Still plenty to work with, right?  We will see.  Mistral is a series of models developed by a French based AI company, [Mistral AI](https://mistral.ai/company/).  They publish an instruction tuned version of the Mistral on [Hugging Face]( https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2), available for anyone to use for free.  In case you don't know, [Hugging Face](https://huggingface.co/) is an incredible website full of machine learning and natural language processing models, datasets, and more for open collaboration in this space.  "Instruction tuned" means that the model has already been trained to take instructions.  Pretrained models that are not instruction tuned tend to just want to predict the next words it thinks you will say.
 
-Armed with Mistral and the [code published by the Faithful COT team](GitHub - veronica320/Faithful-COT: Code and data accompanying our paper on arXiv "Faithful Chain-of-Thought Reasoning".), I set out to adapt Faithful COT to Mistral.
-
-## Adjusting to other models
-
-## Results with Mistral
-
-
-## Does this work with other models?
+Armed with Mistral and the [code published by the Faithful COT team](https://github.com/veronica320/Faithful-COT), I set out to adapt Faithful COT to Mistral.
 
 ## Adjusting to other models
 
