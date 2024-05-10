@@ -152,5 +152,23 @@ money_jerseys = money_per_jersey * jerseys_sold
 answer = money_jerseys
 ```
 
+Which gives the correct answer, faithfully.
 
+Finally, let's compare Mistral-Faithful COT with other models(from the paper):
 
+|	| **SVAMP** |
+|-----------------------------|:---------:|
+| **Mistral Faithful COT** |   58.5    |
+| **Codex**  |   83.5    |
+| **ChatGPT**     | 83.0  | 
+| **GPT-4**     | **95.3**  | 
+
+So Mistral was the worst by far.  However we did show a significant improvement on Mistral over other promptimg styles.
+
+## Wrapping It Up
+
+While Mistral-7B didn't quite match the reasoning prowess of the big boys like GPT-4, the Faithful Chain of Thought approach definitely gave the little guy a boost. By breaking problems down into bite-sized pieces and solving them step-by-step, Faithful CoT helped Mistral improve its score on those tricky math word problems by over 25%. Not too shabby!
+
+Sure, the larger language models still came out on top overall. But being able to enhance reasoning abilities in smaller, more resource-friendly models is a promising sign. As AI continues evolving, techniques like Faithful CoT could help democratize advanced reasoning capabilities across a wider range of applications.
+
+So while Mistral may not be ushering in our robot overlord future just yet, this experiment shows there's still plenty of room for the smaller models to keep leveling up their reasoning game. The faithful revolution may be a little way off, but it's definitely one to watch.
