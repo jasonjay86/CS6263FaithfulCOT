@@ -84,7 +84,7 @@ The model class is defined in the file `source/model/codex.py`.  In that class, 
 			completions.append(self.get_Mistral_answer(choice))
 ```
 
-That bit of code loads the model and tokenizer from Hugging Face, tokenizes the prompt and sends the tokenized prompt to the model through `model.generate()`.  It then decodes the response and splits it up into a format the original Faithful COT code likes.  Most of that code is directly from the [Mistral Hugging Face page]( https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2), but adapted to work here.  I needed to write an extra function called `get_Mistral_answer()` to format Mistral’s response to fit the rest of the code.
+That bit of code loads the model and tokenizer from Hugging Face, tokenizes the prompt and sends the tokenized prompt to the model through `model.generate()`.  It then decodes the response and splits it up into a format the original Faithful COT code likes.  Most of that code is directly from the [Mistral Hugging Face page]( https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2), but adapted to work here.  I also needed to write an extra function called `get_Mistral_answer()` to format Mistral’s response to fit the rest of the code.
 
 And that’s basically it.  Mistral, locked and loaded.  Let’s run it!
 
