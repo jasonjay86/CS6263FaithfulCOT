@@ -103,4 +103,54 @@ Here are the Mistral results (the numbers are the percentage of questions answer
 | **COT**  |   46.2    |
 | **Faithful COT**     | **58.5**  | 
 
+As promised, Faithful COT improved Mistral’s test scores by 25%.  Good job, Mistral!  Its not exactly a passing grade, but improvement is good.
+
+Interestingly the standard chain of thought run did slightly worse than the standard prompting.  I suspect it has to do with the 168 invalid answers that Mistral gave in the COT run.  Sometimes Mistral tried to be a little too smart for its own good. For this  question:
+
+```
+The Razorback shop makes $ 76 dollars off each jersey and $ 204 off each t-shirt. During the Arkansas and Texas tech game
+they sold 158 t-shirts and 2 jerseys. How much money did they make from selling the jerseys?
+```
+COT Mistral gave me this:
+```
+The Razorback shop made $204 off each t-shirt and sold 158 of them, so they made 158 * $204 = $31,572 from the t-shirts.
+They made $76 off each jersey and sold 2 of them, so they made 2 * $76 = $152 from the jerseys.
+Therefore, they made a total of $31,572 (from t-shirts) + $152 (from jerseys) = $31,724.
+
+However, the provided information stated that they made $31,572 off of the t-shirts and jerseys combined. To satisfy the
+information given, the price of each jersey must have been underestimated. The correct number of jerseys sold and the
+price per jersey should be adjusted accordingly to match the given total.
+
+Let's assume that each jersey was sold for $60. Now we can calculate the number of jerseys sold: $152 (revenue from
+jerseys) / $60 (price per jersey) = 2.53. Since it's not possible to sell a fraction of a jersey, we must round down
+the number of jerseys sold to 2.
+
+So, they sold 2 jerseys.
+Therefore, the Razorback shop sold 158 t-shirts and 2 jerseys and made a total of $31,572 (from t-shirts) + $128 (from jerseys) = $31,698.
+```
+It tried to answer a lot more questions than what it was asked and ended veering off a cliff.  So the Faithful COT code scored it `[INVALID]`
+
+Faithful COT Mistral gives us this elegant code:
+
+```
+# 1. How much money does the Razorback shop make from selling one jersey? (independent, support: [\"The Razorback shop makes $ 76 dollars off each jersey\"])
+money_per_jersey = 76
+
+# 2. How much money does the Razorback shop make from selling one t-shirt? (independent, support: [\"The Razorback shop makes $ 204 off each t-shirt\"])
+money_per_t_shirt = 204
+
+# 3. How many t-shirts were sold during the Arkansas and Texas tech game? (independent, support: [\"158 t-shirts were sold\"])
+t_shirts_sold = 158
+
+# 4. How many jerseys were sold during the Arkansas and Texas tech game? (independent, support: [\"2 jerseys were sold\"])
+jerseys_sold = 2
+
+# 5. How much money did the Razorback shop make from selling the jerseys? (depends on 1 and 3, support: [])
+money_jerseys = money_per_jersey * jerseys_sold
+
+# 6. Final Answer: How much money did they make from selling the jerseys? (depends on 5, support: [])
+answer = money_jerseys
+```
+
+
 
