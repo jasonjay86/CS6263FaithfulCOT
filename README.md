@@ -1,181 +1,92 @@
-# Faithful-COT
-Code and data accompanying our paper ["Faithful Chain-of-Thought Reasoning"](https://arxiv.org/abs/2301.13379) in [IJCNLP-AACL 2023](http://www.ijcnlp-aacl2023.org/).
+# CS6263 Faithful Chain of Thought Blog
 
-## Table of Contents
-- [Get started](https://github.com/veronica320/Faithful-COT#get-started)
-- [Repo Structure](https://github.com/veronica320/Faithful-COT#repo-structure)
-- [Usage](https://github.com/veronica320/Faithful-COT#usage)
-  - [Make predictions](https://github.com/veronica320/Faithful-COT#make-predictions)
-  - [Evaluate model predictions](https://github.com/veronica320/Faithful-COT#evaluate-the-model-predictions)
-  - [Get a performance summary table](https://github.com/veronica320/Faithful-COT#get-a-performance-summary-table)
-- [Citation](https://github.com/veronica320/Faithful-COT#citation)
+### By Jason Johnson
 
-## News 📣
-- [Nov 2023] 🎉 Our paper won the Area Chair Award (Interpretability and Analysis of Models for NLP) at [IJCNLP-AACL 2023](http://www.ijcnlp-aacl2023.org/)!
-- [Sep 2023] Our paper was accepted to [IJCNLP-AACL 2023](http://www.ijcnlp-aacl2023.org/)!
-- [Jul 2023] Our paper was presented at the [Natural Language Reasoning and Structured Explanations (NLRSE) Workshop](https://nl-reasoning-workshop.github.io/) (non-archival track) at ACL 2023.
-- [Apr 2023] We have added results using **ChatGPT** (`gpt-3.5-turbo`) and **GPT-4** (`gpt-4`) as the underlying Translator LM.
+## What is Faithful Chain of Thought?
 
-  Here are the accuracy scores in comparison to the original **Codex** (`code-davinci-002`), using the same prompt + greedy decoding:
+Great Question!  Over the past few years Large Language Models have exploded on to the scene with amazing results in sentiment analysis, text completion, question answering, and more.  However, one area where LLMs have been lacking is in complex reasoning tasks, such as math word problems and common-sense reasoning.
 
-|         | **GSM8K** | **SVAMP** | **MultiArith** | **ASDiv** | **AQUA** | **saycan** | **StrategyQA** | **date** | **sports** | **CLUTRR** |
-|-----------------------------|:---------:|:---------:|:--------------:|:---------:|:--------:|:----------:|:--------------:|:--------:|:----------:|:----------:|
-| **Codex** |   72.2    |   83.5    |    **98.8**    |   80.2    |   47.2   | 89.3       |    **63.0**    | 81.6     | 99.1       | 58.9       |
-| **ChatGPT**  |   75.8    |   83.0    |      95.3      |   81.7    |   53.5   | 80.6       |      51.5      | 73.5     | 52.3       | 12.1       |
-| **GPT-4**     | **95.0**  | **95.3**  |      98.5      | **95.6**  |  **73.6**  | **92.2**       |      54.0      | **95.8**     | **99.3**       | **62.7**       |
+Enter: Chain of Thought.  In 2022, Jason Wei and team introduced the concept in their paper, [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://openreview.net/forum?id=_VjQlMeSB_J).  They showed that if you ask the model to show their reasoning steps (its “Chain of Thought”), it significantly improves the ability of the model to perform those complex reasoning tasks.
 
-With GPT-4, Faithful CoT achieves❗**95.0+** few-shot accuracy❗on almost all Math Word Problem datasets, Date Understanding, and Sports Understanding.
-
-See [`output_dir/performance_summary.csv`](https://github.com/veronica320/Faithful-COT/blob/861aaa9898dfc8e5da7cc5d1e29bbb437f3c9c0f/output_dir/performance_summary.csv) for detailed results and `output_dir/{dataset_name}` for model predictions.
+Problem solved, right? Wrong!  Let’s not welcome our robot overlords just yet.  Look at this example:
+ ![Picture1](https://github.com/jasonjay86/CS6263FaithfulCOT/assets/65077765/a9f322d6-95d6-40f2-87b2-0c091a843191)
 
 
-## Get started
-We suggest using miniconda/conda to set up the environment. The `environment.yml` file specifies the minimal dependencies. You can create a virtual environment using it according to [this guildeline](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file).
+Here the model is giving a nice, plausible looking Chain of Thought(CoT), but look closely…Its totally wrong.  Its gibberish.  Not only that, but it also gives the answer as 0.  But nowhere in the blue highlighted section will you find reasoning to give you a 0.  Lastly, if you ask the smartest 3rd grader you know, they will tell you the answer is 2 and not 0.  That’s 3 strikes on this output!
 
-Essentially, you'll need to do something like:
+The problem is that the CoT can lie about the reasoning process.  It’s a form of hallucination for LLMs.  This can be very dangerous, no one wants to listen to a very plausible but very wrong explanation especially when it comes to their wallet, their health, or their freedom.
+
+This is where Faithful COT comes in.  Veronica Lyu and her team introduced [Faithful Chain-of-Thought Reasoning](https://arxiv.org/pdf/2301.13379). A framework to make sure LLMs are giving their true reasoning steps to derive their  answers.
+
+
+## OK, So How does it Work?
+
+I knew you would ask that!  Faithful Chain of Thought uses a two-stage pipeline.  With some few shot prompting, Faithful Chain of Thought forces the LLM to give its answer in a very specific way.   If you don’t know, few shot prompting means you provide the model with a few examples of your question-and-answer pair to help it provide you with a specific output format. One shot prompting would mean you give it just one example, zero shot is no examples.  For Faithful COT, they have prompted the model to output a reasoning chain that is a mix of natural language and symbolic language.  The natural language decomposes the question into multiple subproblems.  The symbolic language is a piece of code designed by the model to tackle each subproblem.  That mix of natural and symbolic language is called the Translation stage.  
+
+The second stage they call the Problem-Solving stage.  The Translation from stage 1 is fed to a deterministic solver like a Python interpreter to calculate the answer **faithfully**.  No more 195-160 = 0, like was before!  In the paper and in their code, four types of problems were tested with four types of deterministic solvers.  For this blog post, I will focus on Math Word Problems, which used a Python interpreter for problem-solving.  Here’s an example of one of those problems:
+![Picture2](https://github.com/jasonjay86/CS6263FaithfulCOT/assets/65077765/c4659aae-19ff-4777-836d-9ad7041ea3b1)
+
+ 
+With this method, the model is forced to be faithful to the reasoning chain because the Python interpreter will literally follow the steps word for word.  However, it is important to note that the reasoning chain itself can still be wrong.  It can be *quite* wrong, in fact.
+
+That said, the researchers produced excellent results across the board when applying this method.  They found that using this method with OpenAI's models made them more accurate than standard prompting or other forms of Chain of Thought prompting.
+ ![Picture3](https://github.com/jasonjay86/CS6263FaithfulCOT/assets/65077765/7c3abe86-f6e9-4397-b732-d66dec0d6b22)
+
+## Does this work with other models?
+
+In reading the paper, I was a little surprised that the team only stuck with OpenAI’s LLMs.  Sure, OpenAI has arguably been the gold standard for LLMs for several years.  They certainly have the most famous LLMs in ChatGPT.  But they are not the only game in town!
+
+I wondered *how well this technique could be used with a smaller model?*  So when we talk about model size, we are generally speaking of how many trainable parameters it has.  Without getting too math-y, we can say that the parameters are a rough indicator of a model’s ability to recognize complex patterns in data.  It’s *almost* an indication of how smart a model is (not really, but it helps). GPT-4, OpenAI’s latest and greatest, was trained on 1.76 *trillion* parameters.  Its predecessor, GPT-3, has 175 billion parameters.  Both of which were used in experiments on Faithful COT.  How does this work if you don’t have all those parameters to back you up?
+
+To test this, I used an open-source LLM called [Mistral-7B](https://mistral.ai/technology/#models).  The 7B part means that it has just 7 billion parameters.  Still plenty to work with, right?  We will see.  Mistral is a series of models developed by a French based AI company, [Mistral AI](https://mistral.ai/company/).  They publish an instruction tuned version of the Mistral on [Hugging Face]( https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2), available for anyone to use for free.  In case you don't know, [Hugging Face](https://huggingface.co/) is an incredible website full of machine learning and natural language processing models, datasets, and more for open collaboration in this space.  "Instruction tuned" means that the model has already been trained to take instructions.  Pretrained models that are not instruction tuned tend to just want to predict the next words it thinks you will say.
+
+Armed with Mistral and the [code published by the Faithful COT team](https://github.com/veronica320/Faithful-COT), I set out to adapt Faithful COT to Mistral.
+
+## Adjusting to other models
+
+The logical first step for me was just getting the published code running for me.  Our friends at Penn on the Faithful COT team left us solid instructions in their README as well as an environment.yml file to build a Conda virtual environment.  After some typical python environment wrestling (I never have any luck with environment.yml files, even my own), I got to a point where I could run their `predict.py` program without errors.  `predict.py` is their main program that sends the math word problem with the “Faithful” few shot prompt to the model to get an output or a prediction.  So I run…
+
+`python source/predict/predict.py --model_name gpt-3.5-turbo_standard --dataset_name SVAMP --split test`
+
+to run the predict code on gpt 3.5 on the SVAMP dataset.  The SVAMP dataset is a set of elementary school level math word problems.  I picked that dataset because I wanted to do a math dataset and that one is easy to spell.
+
+Now the published code is extremely well written and designed with plenty of comments and documentation, but for the life of me -- **I could not get this code to run.**  I could not understand it.  I tried changing my OpenAI key, I tried different models, added dozens of `print` statements, and nothing worked.  Finally, after hours of banging my head against my keyboard, I found this little line was the culprit:
+
+`response = openai.ChatCompletion.create(…)`
+
+That is a VERY important line, because it is the method that makes the call to OpenAI’s api to use their models.  To make a long story short, I believe openai changed their method name to:
+
+`response = openai.chat.completions.create(…)`
+
+With that simple change, everything worked perfectly.  I even saw results that mirrored what was published in the paper.  The next task was to make it work with Mistral instead of the OpenAI models. 
+
+Without getting too technical, the code is implemented in such a way that the model is a custom python object, so the task boils down to making that class support Mistral.  I won’t get into every line of code I added to do that, but I’ll hit some highlights.  The code is in this repository if you are curious.
+
+The model class is defined in the file `source/model/codex.py`.  In that class, I spent the most time in a method called `_query`.  In that method, the calls to the openai api are made.  There was already an if-then structure for the different versions of the api call, so I added to it for Mistral:
+
 ```
-cd /path/to/Faithful-COT
-conda env create -f ./environment.yml --prefix ./envs
-```
+	elif LM in ["mistral"]: 
+		completions = []
+		device = "cuda" # the device to load the model onto
+		model = AutoModelForCausalLM.from_pretrained(self.path)
+		tokenizer = AutoTokenizer.from_pretrained(self.path)
+		messages=[{"role": "user", "content": prompt}]
+			
+		encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
+		model_inputs = encodeds.to(device)
+		model.to(device)
 
-Additionally, to run experiments on **StrategyQA**, you should install [Soufflé](https://souffle-lang.github.io/index.html) (a version of Datalog interpreter we use) following [these instructions](https://souffle-lang.github.io/build). It's not a Python package, so you'll need to install it separately. Note that under the "Installing Souffle" section you should use `-DCMAKE_INSTALL_PREFIX="~/.local"` for it to be installed to the right place. 
-
-## Repo Structure
-- `environment.yml`: Conda environment file.
-- `data/`: Evaluation datasets. See `data/README.md` for details.
-- `output_dir/`: Model prediction files. See `output_dir/README.md` for details.
-- `source/`: Source codes.
-  - `dataset/`: Dataset utility functions.
-  - `configuration/`: model configuration. This is to specify the hyperparameters for each model, such as `"prompt_name"`, `"LM"`, and so on. 
-    - `configuration.py`: the Config class. See the definition of each field in the `init()` funciton.
-    - `config_files/`: the configuration files for each model. Each file name is in the format of `{model-name}.json`, e.g., `code002_NL+SL.json`. See `configuration/README.md` for details.
-  - `prompt/`: The prompts for the LM to generate the reasoning chain. For every prompt with name `{prompt-name}` (e.g., `NL+SL`), there are two files associated with it:
-    - `{prompt-name}_prompt.txt`: the prompt containing few-shot examples. See `NL+SL_prompt.txt` for an example.
-    - `{prompt-name}_template.txt`: the template to transform a new input example into the desired format. See `NL+SL_template.txt` for an example.
-    - The above two files will be used in combination to generate the final prompt to query the LM. See `codex.py` for details.
-    - The `{prompt-name}` here corresponds to the `"prompt_name"` field in a configuration file.
-  - `model/`:
-    - `codex.py`: tur main `Model` class. See inline comments for details.
-    - `solver/`: the deterministic solvers for each dataset. They are called by `Model` in executing the reasoning chain to derive the answer.
-  - `predict/`:
-    - `predict.py`: Run the model to make predictions on a dataset. Output will be saved under `ouput_dir/`.
-  - `evaluate/`:
-    - `evaluate_answer_acc.py`: Evaluate the answer accuracy for a certain model configuration on a given dataset and split.
-    - `gen_perf_table.py`: Generate a table of performance summary for all model configurations on all datasets in `output_dir/`.
-
-## Usage
-
-### Make predictions
-
-1. Provide your OpenAI API key(s) by creating a file called `key.py` under `source/` in the following format:
-```
-API_KEYS = {
-	"key1_nickname": "key1",
-	"key2_nickname": "key2",
-	...
-}
-```
-Note that your keys should have access to the relevant LM (`code-davinci-002`, etc.) specified in the configuration you'd like to use.
-
-2. Choose a model configuration you'd like to use. You can use an existing configuration under `configuration/config_files/{dataset_name}` or create a new one. See `configuration/README.md` for details.
-
-3. Run `source/predict/predict.py`:
-```
-$ python predict.py -h
-usage: predict.py [-h]
-                  [--dataset_name {GSM8K,ASDiv,MultiArith,SVAMP,AQUA,date,StrategyQA,sports,saycan,CLUTRR}]
-                  [--split {train,dev,test}] [--model_name MODEL_NAME]
-                  [--completion_only] [--debug]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --dataset_name {GSM8K,ASDiv,MultiArith,SVAMP,AQUA,date,StrategyQA,sports,saycan,CLUTRR}
-                        The name of the dataset.
-  --split {train,dev,test}
-                        The split of the dataset.
-  --model_name MODEL_NAME
-                        The name of the model (should have a corresponding
-                        config file under `configuration/config_files/dataset_name` called
-                        `{model_name}.json`.)
-  --completion_only     Only query the LM to generate the completion
-                        (reasoning chain), but not execute the solver to
-                        derive the answer.
-  --debug               If true, only run on the first 10 examples.
+		generated_ids = model.generate(model_inputs, max_new_tokens=1000, do_sample=True)
+		response = tokenizer.batch_decode(generated_ids)
+		choices = response
+   			
+		for choice in choices:
+			completions.append(self.get_Mistral_answer(choice))
 ```
 
+That bit of code loads the model and tokenizer from Hugging Face, tokenizes the prompt and sends the tokenized prompt to the model through `model.generate()`.  It then decodes the response and splits it up into a format the original Faithful COT code likes.  Most of that code is directly from the [Mistral Hugging Face page]( https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2), but adapted to work here.  I also needed to write an extra function called `get_Mistral_answer()` to format Mistral’s response to fit the rest of the code.
 
-Example:
-```
-nohup python predict.py --model_name code002_NL+SL --dataset_name GSM8K --split test > logs/GSM8K/code002_NL+SL_test.log 2>&1 &
-```
+And that’s basically it.  Mistral, locked and loaded.  Let’s run it!
 
-The model predictions will be saved under `output_dir/{dataset_name}/{split}/{model_name}`. See `output_dir/README.md` for details on the format.
-
-Tips: 
-- It's recommended to use `nohup` since certain experiments can take hours to run. Also, you may need to create the relevant `logs/{dataset_name}` directory if it doesn't exist.
-- The `--completion_only` flag is useful when you run the prediction script on a server, where it may be non-trivial to install certain solvers (e.g. Soufflé). In this case, you can simply run `predict.py` with the `--completion_only` flag on, which will generate the completions only but not derive the answer. Then, on your local machine with the necessary solvers installed, you can run `source/predict/get_answer_from_completion.py` (with the same arguments) to derive the answer from the completions.
-
-### Evaluate the model predictions
-Run `source/evaluate/evaluate_answer_acc.py` with the following arguments:
-```
-$ python evaluate_answer_acc.py -h
-usage: evaluate_answer_acc.py [-h]
-                              [--dataset_name {GSM8K,ASDiv,MultiArith,SVAMP,AQUA,date,StrategyQA,sports,saycan,CLUTRR}]
-                              [--split {train,dev,test}]
-                              [--model_name MODEL_NAME] [--non_empty_only]
-                              [--valid_only] [--debug]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --dataset_name {GSM8K,ASDiv,MultiArith,SVAMP,AQUA,date,StrategyQA,sports,saycan,CLUTRR}
-                        The name of the dataset.
-  --split {train,dev,test}
-                        The split of the dataset.
-  --model_name MODEL_NAME
-                        The name of the model (should have a corresponding
-                        config file under
-                        `configuration/config_files/dataset_name` called
-                        `{model_name}.json`.)
-  --non_empty_only      If true, only evaluate on non-empty answers.
-  --valid_only          If true, only evaluate on valid answers.
-  --debug               If true, only run on the first 10 examples.
-```
-
-The accuracy will be printed to stdout.
-
-Example:
-```
-python evaluate_answer_acc.py --model_name code002_NL+SL --dataset_name GSM8K --split test
-```
-Output:
-```
-Dataset: GSM8K
-Split: test
-Model: code002_NL+SL
-Answer accuracy: 72.2
-```
-
-### Get a performance summary table
-
-To reproduce the numbers in our paper, you can generate a performance summary table for all model configurations on all datasets in `output_dir/` by running `source/evaluate/gen_perf_table.py` (no arguments needed).
-
-Example:
-```
-python gen_perf_table.py
-```
-
-The output will be saved to `output_dir/performance_summary.csv`. If there do not exist predictions for a certain model configuration on a dataset, the corresponding cell will be empty.
-
-
-## Citation
-If you find this repository useful, please cite our paper:
-```
-@article{lyu2023faithful,
-  title={Faithful chain-of-thought reasoning},
-  author={Lyu, Qing and Havaldar, Shreya and Stein, Adam and Zhang, Li and Rao, Delip and Wong, Eric and Apidianaki, Marianna and Callison-Burch, Chris},
-  journal={arXiv preprint arXiv:2301.13379},
-  year={2023}
-}
-```
-
+## Results with Mistral
 
