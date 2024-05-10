@@ -24,6 +24,7 @@ This is where Faithful COT comes in.  Veronica Lyu and her team introduced [Fait
 I knew you would ask that!  Faithful Chain of Thought uses a two-stage pipeline.  With some few shot prompting, Faithful Chain of Thought forces the LLM to give its answer in a very specific way.   If you don’t know, few shot prompting means you provide the model with a few examples of your question-and-answer pair to help it provide you with a specific output format. One shot prompting would mean you give it just one example, zero shot is no examples.  For Faithful COT, they have prompted the model to output a reasoning chain that is a mix of natural language and symbolic language.  The natural language decomposes the question into multiple subproblems.  The symbolic language is a piece of code designed by the model to tackle each subproblem.  That mix of natural and symbolic language is called the Translation stage.  
 
 The second stage they call the Problem-Solving stage.  The Translation from stage 1 is fed to a deterministic solver like a Python interpreter to calculate the answer **faithfully**.  No more 195-160 = 0, like was before!  In the paper and in their code, four types of problems were tested with four types of deterministic solvers.  For this blog post, I will focus on Math Word Problems, which used a Python interpreter for problem-solving.  Here’s an example of one of those problems:
+
 ![Picture2](https://github.com/jasonjay86/CS6263FaithfulCOT/assets/65077765/c4659aae-19ff-4777-836d-9ad7041ea3b1)
 
  
