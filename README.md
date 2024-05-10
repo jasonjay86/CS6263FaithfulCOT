@@ -44,5 +44,50 @@ Armed with Mistral and the [code published by the Faithful COT team](https://git
 
 ## Adjusting to other models
 
+The logical first step for me was just getting the published code running for me.  Our friends at Penn on the Faithful COT team left us solid instructions in their README as well as an environment.yml file to build a Conda virtual environment.  After some typical python environment wrestling (I never have any luck with environment.yml files, even my own), I got to a point where I could run their `predict.py` program without errors.  `predict.py` is their main program that sends the math word problem with the “Faithful” few shot prompt to the model to get an output or a prediction.  So I run…
+
+`python source/predict/predict.py --model_name gpt-3.5-turbo_standard --dataset_name SVAMP --split test`
+
+to run the predict code on gpt 3.5 on the SVAMP dataset.  The SVAMP dataset is a set of elementary school level math word problems.  I picked that dataset because I wanted to do a math dataset and that one is easy to spell.
+
+Now the published code is extremely well written and designed with plenty of comments and documentation, but for the life of me -- **I could not get this code to run.**  I could not understand it.  I tried changing my OpenAI key, I tried different models, added dozens of `print` statements, and nothing worked.  Finally, after hours of banging my head against my keyboard, I found this little line was the culprit:
+
+`response = openai.ChatCompletion.create(…)`
+
+That is a VERY important line, because it is the method that makes the call to OpenAI’s api to use their models.  To make a long story short, I believe openai changed their method name to:
+
+`response = openai.chat.completions.create(…)`
+
+With that simple change, everything worked perfectly.  I even saw results that mirrored what was published in the paper.  The next task was to make it work with Mistral instead of the OpenAI models. 
+
+Without getting too technical, the code is implemented in such a way that the model is a custom python object, so the task boils down to making that class support Mistral.  I won’t get into every line of code I added to do that, but I’ll hit some highlights.  The code is in this repository if you are curious.
+
+The model class is defined in the file `source/model/codex.py`.  In that class, I spent the most time in a method called `_query`.  In that method, the calls to the openai api are made.  There was already an if-then structure for the different versions of the api call, so I added to it for Mistral:
+
+```
+elif LM in ["mistral"]: 
+			completions = []
+			device = "cuda" # the device to load the model onto
+			model = AutoModelForCausalLM.from_pretrained(self.path)
+			tokenizer = AutoTokenizer.from_pretrained(self.path)
+		
+			messages=[{"role": "user", "content": prompt}]
+			
+			encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
+			model_inputs = encodeds.to(device)
+			model.to(device)
+
+			generated_ids = model.generate(model_inputs, max_new_tokens=1000, do_sample=True)
+			response = tokenizer.batch_decode(generated_ids)
+			choices = response
+   			
+			for choice in choices:
+				completions.append(self.get_Mistral_answer(choice))
+```
+
+That bit of code loads the model and tokenizer from Hugging Face, tokenizes the prompt and sends the tokenized prompt to the model through `model.generate()`.  It then decodes the response and splits it up into a format the original Faithful COT code likes.  Most of that code is directly from the [Mistral Hugging Face page]( https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2), but adapted to work here.  I needed to write an extra function called `get_Mistral_answer` to format Mistral’s response to fit the rest of the code.
+
+And that’s basically it.  Mistral, locked and loaded.  Let’s run it!
+
 ## Results with Mistral
 
