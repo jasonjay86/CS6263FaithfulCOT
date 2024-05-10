@@ -90,3 +90,17 @@ And that’s basically it.  Mistral, locked and loaded.  Let’s run it!
 
 ## Results with Mistral
 
+Running through the test set of the SVAMP dataset goes through 1000 word problems, so it takes a good bit of time to execute.  In the interest of time, I stuck with the SVAMP dataset and ran three problem solving techniques.
+* **Standard prompting** where we ask the model for the answer with no reasoning chain
+* **Chain of Thought** where we ask the model for a reasoning chain along with an answer
+* **Faithful COT** where we ask the model for a reasoning chain that can be run through a deterministic solver.  In this case, a python interpreter.
+
+Here are the Mistral results (the numbers are the percentage of questions answered correctly):
+
+|	| **SVAMP** |
+|-----------------------------|:---------:|
+| **Standard** |   46.6    |
+| **COT**  |   46.2    |
+| **Faithful COT**     | **58.5**  | 
+
+
