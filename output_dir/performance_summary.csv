@@ -1,8 +1,8 @@
 ,GSM8K,SVAMP,MultiArith,ASDiv,AQUA,saycan,StrategyQA,date,sports,CLUTRR
 mistral_standard,,46.6,,,,,,,,
-mistral_COT,,,,,,,,,,
+mistral_COT,,46.2,,,,,,,,
 mistral_LtM,,,,,,,,,,
 mistral_noNL,,,,,,,,,,
-mistral_NL+SL,,,,,,,,,,
+mistral_NL+SL,,58.5,,,,,,,,
 mistral_LtM_n:40,,,,,,,,,,
 mistral_NL+SL_n:40,,,,,,,,,,
