@@ -167,8 +167,10 @@ So Mistral was the worst by far.  However we did show a significant improvement 
 
 ## Wrapping It Up
 
-While Mistral-7B didn't quite match the reasoning prowess of the big boys like GPT-4, the Faithful Chain of Thought approach definitely gave the little guy a boost. By breaking problems down into bite-sized pieces and solving them step-by-step, Faithful CoT helped Mistral improve its score on those tricky math word problems by over 25%. Not too shabby!
+While Mistral-7B didn't quite match the reasoning prowess of the big boys like GPT-4, the Faithful Chain of Thought approach definitely gave the little guy a boost. By breaking problems down into bite-sized pieces and solving them step-by-step with a deterministic solver, Faithful CoT helped Mistral improve its score on those tricky math word problems by over 25%. Not too shabby!
 
-Sure, the larger language models still came out on top overall. But being able to enhance reasoning abilities in smaller, more resource-friendly models is a promising sign. As AI continues evolving, techniques like Faithful CoT could help democratize advanced reasoning capabilities across a wider range of applications.
+Sure, the larger language models still came out on top overall. But being able to enhance reasoning abilities in smaller, more resource-friendly models is a promising sign. As AI continues to evolve, techniques like Faithful CoT could help democratize advanced reasoning capabilities across a wider range of applications.
 
-So while Mistral may not be ushering in our robot overlord future just yet, this experiment shows there's still plenty of room for the smaller models to keep leveling up their reasoning game. The faithful revolution may be a little way off, but it's definitely one to watch.
+So while Mistral may not be ushering in our robot overlord future just yet, this experiment shows there's still plenty of room for the smaller models to step up their reasoning game. The faithful revolution may be a little way off, but it's definitely one to watch.
+
+Big thanks to all the folks at Penn who published the Faithful Chain of Thought paper and code.  They are also ones to watch.  Here is then link to their paper, one more time.  ["Faithful Chain-of-Thought Reasoning"](https://arxiv.org/abs/2301.13379)
