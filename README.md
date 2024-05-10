@@ -65,27 +65,26 @@ Without getting too technical, the code is implemented in such a way that the mo
 The model class is defined in the file `source/model/codex.py`.  In that class, I spent the most time in a method called `_query`.  In that method, the calls to the openai api are made.  There was already an if-then structure for the different versions of the api call, so I added to it for Mistral:
 
 ```
-elif LM in ["mistral"]: 
-			completions = []
-			device = "cuda" # the device to load the model onto
-			model = AutoModelForCausalLM.from_pretrained(self.path)
-			tokenizer = AutoTokenizer.from_pretrained(self.path)
-		
-			messages=[{"role": "user", "content": prompt}]
+	elif LM in ["mistral"]: 
+		completions = []
+		device = "cuda" # the device to load the model onto
+		model = AutoModelForCausalLM.from_pretrained(self.path)
+		tokenizer = AutoTokenizer.from_pretrained(self.path)
+		messages=[{"role": "user", "content": prompt}]
 			
-			encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
-			model_inputs = encodeds.to(device)
-			model.to(device)
+		encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
+		model_inputs = encodeds.to(device)
+		model.to(device)
 
-			generated_ids = model.generate(model_inputs, max_new_tokens=1000, do_sample=True)
-			response = tokenizer.batch_decode(generated_ids)
-			choices = response
+		generated_ids = model.generate(model_inputs, max_new_tokens=1000, do_sample=True)
+		response = tokenizer.batch_decode(generated_ids)
+		choices = response
    			
-			for choice in choices:
-				completions.append(self.get_Mistral_answer(choice))
+		for choice in choices:
+			completions.append(self.get_Mistral_answer(choice))
 ```
 
-That bit of code loads the model and tokenizer from Hugging Face, tokenizes the prompt and sends the tokenized prompt to the model through `model.generate()`.  It then decodes the response and splits it up into a format the original Faithful COT code likes.  Most of that code is directly from the [Mistral Hugging Face page]( https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2), but adapted to work here.  I needed to write an extra function called `get_Mistral_answer` to format Mistral’s response to fit the rest of the code.
+That bit of code loads the model and tokenizer from Hugging Face, tokenizes the prompt and sends the tokenized prompt to the model through `model.generate()`.  It then decodes the response and splits it up into a format the original Faithful COT code likes.  Most of that code is directly from the [Mistral Hugging Face page]( https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2), but adapted to work here.  I needed to write an extra function called `get_Mistral_answer()` to format Mistral’s response to fit the rest of the code.
 
 And that’s basically it.  Mistral, locked and loaded.  Let’s run it!
 
